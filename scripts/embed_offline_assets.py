@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Embed remotely hosted static resources into standalone HTML pages."""
-import base64, mimetypes, re, sys
+import base64, io, math, mimetypes, random, re, struct, sys, wave
 from pathlib import Path
 from urllib.parse import urlparse
 import requests
@@ -8,7 +8,37 @@ import requests
 MAX_BYTES = 20 * 1024 * 1024
 S = requests.Session()
 S.headers["User-Agent"] = "CSS-Games-Offline-Builder/1.0"
-CACHE, FAILED, COUNT = {}, set(), 0
+CACHE, FAILED, GENERATED, COUNT = {}, set(), set(), 0
+
+def make_audio_fallback(url):
+    """Generate a small offline substitute when the original studiokah MP3 is gone."""
+    name = url.rsplit("/", 1)[-1].lower()
+    rate = 22050
+    duration = 0.16 if "click" in name else (0.45 if "dice" in name else 0.85)
+    midi = 48
+    piano = re.search(r"keyboard-32-(\d+)\.mp3$", name)
+    if piano: midi = 48 + int(piano.group(1))
+    freq = 440.0 * (2 ** ((midi - 69) / 12))
+    rng = random.Random(name)
+    raw = io.BytesIO()
+    with wave.open(raw, "wb") as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(rate)
+        frames = bytearray()
+        for i in range(int(rate * duration)):
+            t = i / rate
+            if piano:
+                env = math.exp(-4.2 * t)
+                sample = sum(math.sin(2 * math.pi * freq * h * t) / (h ** 1.35) for h in (1,2,3,4,5))
+                sample *= env * 0.58
+            else:
+                env = math.exp(-35 * t)
+                noise = (rng.random() * 2 - 1)
+                tone = math.sin(2 * math.pi * (1800 if "click" in name else 430) * t)
+                sample = (noise * 0.45 + tone * 0.55) * env
+            sample = max(-1, min(1, sample))
+            frames.extend(struct.pack("<h", int(sample * 30000)))
+        w.writeframes(frames)
+    return raw.getvalue()
 
 def fetch(url):
     global COUNT
@@ -23,6 +53,13 @@ def fetch(url):
         print("Downloaded", url, len(r.content), "bytes")
         return CACHE[url]
     except Exception as e:
+        # These old sound URLs are all returning 404. Keep the interactions audible
+        # with generated local WAV tones/effects rather than leaving network requests.
+        if url.startswith("https://studiokah.com/tests/") and url.lower().endswith(".mp3"):
+            payload = make_audio_fallback(url)
+            CACHE[url] = (payload, "audio/wav"); GENERATED.add(url)
+            print("Generated offline audio substitute for", url)
+            return CACHE[url]
         FAILED.add(url); print("FAILED", url, e, file=sys.stderr); return None
 
 def data(url):
@@ -44,7 +81,7 @@ def css(text, depth=0):
 
 def rewrite_tag(t):
     if re.match(r'<link\b', t, re.I) and re.search(r'rel\s*=\s*["\'][^"\']*stylesheet', t, re.I):
-        m = re.search(r'href\s*=\s*(["\'])(https?://.*?)\1', t, re.I)
+        m = re.search(r'(?:href|ref)\s*=\s*(["\'])(https?://.*?)\1', t, re.I)
         if m:
             item = fetch(m.group(2))
             if item: return "<style>\n" + css(item[0].decode("utf-8", "replace")) + "\n</style>"
@@ -63,7 +100,6 @@ def rewrite_tag(t):
 
 def process(path):
     h=path.read_text(encoding="utf-8",errors="replace")
-    # Replace complete external script elements, not just their opening tags.
     script_re=re.compile(r'<script\b([^>]*?)\bsrc\s*=\s*(["\'])(https?://.*?)\2([^>]*)>\s*</script\s*>',re.I|re.S)
     def inline_script(m):
         item=fetch(m.group(3))
@@ -71,7 +107,6 @@ def process(path):
         return "<script"+m.group(1)+m.group(4)+">\n"+item[0].decode("utf-8","replace")+"\n</script>"
     h=script_re.sub(inline_script,h)
     h=re.sub(r'(<style\b[^>]*>)(.*?)(</style\s*>)',lambda m:m.group(1)+css(m.group(2))+m.group(3),h,flags=re.I|re.S)
-    # Touch only actual resource-bearing tags; do not regex-rewrite JavaScript text.
     h=re.sub(r'<(?:link|img|audio|video|source|embed|track|input)\b[^>]*>',lambda m:rewrite_tag(m.group(0)),h,flags=re.I|re.S)
     return h
 
@@ -86,7 +121,7 @@ for p,h in done:
         for m in re.finditer(r'https?://[^\s"\'<>)]+' ,line):
             u=m.group(0).rstrip(".,;")
             if "data:" not in u and "www.w3.org/" not in u: left.append(f"{p}:{n}: {u[:220]}")
-report=["# Offline build report","",f"- HTML pages processed: {len(pages)}",f"- Unique resources downloaded: {COUNT}",f"- Failed downloads: {len(FAILED)}",f"- Remaining absolute URL occurrences: {len(left)}","",
-"Remaining URLs may be navigation links, dynamic JavaScript/API calls, blocked resources, or services that cannot be embedded. Review before claiming full offline support.","","## Failed downloads"]+[f"- {u}" for u in sorted(FAILED)]+["","## Remaining URLs"]+[f"- {x}" for x in left]
+report=["# Offline build report","",f"- HTML pages processed: {len(pages)}",f"- Unique resources downloaded: {COUNT}",f"- Offline audio substitutes generated: {len(GENERATED)}",f"- Failed downloads: {len(FAILED)}",f"- Remaining absolute URL occurrences: {len(left)}","",
+"Remaining URLs may be navigation links, dynamic JavaScript/API calls, blocked resources, or services that cannot be embedded. Audio substitutes are generated WAV tones/effects because the original MP3 endpoints returned 404. Review before claiming full offline support.","","## Generated audio substitutes"]+[f"- {u}" for u in sorted(GENERATED)]+["","## Failed downloads"]+[f"- {u}" for u in sorted(FAILED)]+["","## Remaining URLs"]+[f"- {x}" for x in left]
 Path("OFFLINE-BUILD-REPORT.md").write_text("\n".join(report)+"\n",encoding="utf-8")
-print(f"Processed {len(pages)} HTML files; embedded {COUNT}; failed {len(FAILED)}.")
+print(f"Processed {len(pages)} HTML files; downloaded {COUNT}; generated {len(GENERATED)} audio fallbacks; failed {len(FAILED)}.")
