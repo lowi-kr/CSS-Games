@@ -32,6 +32,7 @@ jobs:
             echo "No changes."
           else
             git commit -m "Embed external assets for offline HTML"
+            # Rebase generated output if a user commit landed while the job ran.
             git pull --rebase origin fully-offline-standalone-html
             git push origin fully-offline-standalone-html
           fi
