@@ -29,30 +29,25 @@ def data(url):
     item = fetch(url)
     return "data:" + item[1] + ";base64," + base64.b64encode(item[0]).decode() if item else url
 
-def css(css, depth=0):
-    if depth > 8: return css
+def css(text, depth=0):
+    if depth > 8: return text
     imp = re.compile(r'@import\s+(?:url\(\s*)?(["\']?)(https?://[^"\')\s;]+|//[^"\')\s;]+)\1\s*\)?\s*([^;]*);', re.I)
     def do_import(m):
         item = fetch(m.group(2))
         if not item or ("css" not in item[1] and not m.group(2).lower().split("?")[0].endswith(".css")): return m.group(0)
-        return css(item[0].decode("utf-8", "replace"), depth + 1)
-    css = imp.sub(do_import, css)
+        imported = css(item[0].decode("utf-8", "replace"), depth + 1)
+        media = m.group(3).strip()
+        return imported if not media else "@media " + media + " {\n" + imported + "\n}"
+    text = imp.sub(do_import, text)
     url_re = re.compile(r'url\(\s*(["\']?)(https?://[^"\')]+|//[^"\')]+)\1\s*\)', re.I)
-    return url_re.sub(lambda m: "url('" + data(m.group(2)) + "')" if fetch(m.group(2)) else m.group(0), css)
+    return url_re.sub(lambda m: "url('" + data(m.group(2)) + "')" if fetch(m.group(2)) else m.group(0), text)
 
-def tag(t):
+def rewrite_tag(t):
     if re.match(r'<link\b', t, re.I) and re.search(r'rel\s*=\s*["\'][^"\']*stylesheet', t, re.I):
         m = re.search(r'href\s*=\s*(["\'])(https?://.*?)\1', t, re.I)
         if m:
             item = fetch(m.group(2))
             if item: return "<style>\n" + css(item[0].decode("utf-8", "replace")) + "\n</style>"
-    if re.match(r'<script\b', t, re.I):
-        m = re.search(r'\bsrc\s*=\s*(["\'])(https?://.*?)\1', t, re.I)
-        if m:
-            item = fetch(m.group(2))
-            if item:
-                attrs = re.sub(r'\s+src\s*=\s*(["\']).*?\1', '', t, flags=re.I)
-                return re.sub(r'\s*/?>$', '', attrs) + ">\n" + item[0].decode("utf-8", "replace") + "\n</script>"
     mt = re.match(r'<\s*([a-zA-Z0-9:-]+)', t); name = mt.group(1).lower() if mt else ""
     if name in {"img","audio","video","source","embed","track","input"}:
         t = re.sub(r'\b(src|poster)\s*=\s*(["\'])(https?://.*?)\2', lambda m: m.group(1)+"="+m.group(2)+data(m.group(3))+m.group(2), t, flags=re.I)
@@ -66,14 +61,25 @@ def tag(t):
         t = re.sub(r'\bsrcset\s*=\s*(["\'])(.*?)\1', srcset, t, flags=re.I)
     return re.sub(r'\bstyle\s*=\s*(["\'])(.*?)\1', lambda m:"style="+m.group(1)+css(m.group(2))+m.group(1), t, flags=re.I|re.S)
 
+def process(path):
+    h=path.read_text(encoding="utf-8",errors="replace")
+    # Replace complete external script elements, not just their opening tags.
+    script_re=re.compile(r'<script\b([^>]*?)\bsrc\s*=\s*(["\'])(https?://.*?)\2([^>]*)>\s*</script\s*>',re.I|re.S)
+    def inline_script(m):
+        item=fetch(m.group(3))
+        if not item: return m.group(0)
+        return "<script"+m.group(1)+m.group(4)+">\n"+item[0].decode("utf-8","replace")+"\n</script>"
+    h=script_re.sub(inline_script,h)
+    h=re.sub(r'(<style\b[^>]*>)(.*?)(</style\s*>)',lambda m:m.group(1)+css(m.group(2))+m.group(3),h,flags=re.I|re.S)
+    # Touch only actual resource-bearing tags; do not regex-rewrite JavaScript text.
+    h=re.sub(r'<(?:link|img|audio|video|source|embed|track|input)\b[^>]*>',lambda m:rewrite_tag(m.group(0)),h,flags=re.I|re.S)
+    return h
+
 pages=sorted(Path(".").rglob("*.html"))
 if not pages: raise SystemExit("No HTML pages found")
 done=[]
 for p in pages:
-    h=p.read_text(encoding="utf-8",errors="replace")
-    h=re.sub(r'(<style\b[^>]*>)(.*?)(</style\s*>)',lambda m:m.group(1)+css(m.group(2))+m.group(3),h,flags=re.I|re.S)
-    h=re.sub(r'<[^>]+>',lambda m:tag(m.group(0)),h)
-    p.write_text(h,encoding="utf-8"); done.append((p,h))
+    h=process(p); p.write_text(h,encoding="utf-8"); done.append((p,h))
 left=[]
 for p,h in done:
     for n,line in enumerate(h.splitlines(),1):
