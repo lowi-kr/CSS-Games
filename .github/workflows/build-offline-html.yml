@@ -1,0 +1,36 @@
+name: Build fully offline HTML
+on:
+  workflow_dispatch:
+  push:
+    branches: [fully-offline-standalone-html]
+    paths: ["**/*.html", "scripts/embed_offline_assets.py", ".github/workflows/build-offline-html.yml"]
+permissions:
+  contents: write
+concurrency:
+  group: offline-html-\${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  embed-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fully-offline-standalone-html
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade requests
+      - name: Download and embed external resources
+        run: python scripts/embed_offline_assets.py
+      - name: Commit generated HTML
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- '*.html' OFFLINE-BUILD-REPORT.md
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "Embed external assets for offline HTML"
+            git push origin fully-offline-standalone-html
+          fi
