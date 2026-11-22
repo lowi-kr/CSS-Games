@@ -115,13 +115,16 @@ if not pages: raise SystemExit("No HTML pages found")
 done=[]
 for p in pages:
     h=process(p); p.write_text(h,encoding="utf-8"); done.append((p,h))
+css_files = sorted(Path(".").rglob("*.css"))
+for css_file in css_files:
+    css_file.unlink()
 left=[]
 for p,h in done:
     for n,line in enumerate(h.splitlines(),1):
         for m in re.finditer(r'https?://[^\s"\'<>)]+' ,line):
             u=m.group(0).rstrip(".,;")
             if "data:" not in u and "www.w3.org/" not in u: left.append(f"{p}:{n}: {u[:220]}")
-report=["# Offline build report","",f"- HTML pages processed: {len(pages)}",f"- Unique resources downloaded: {COUNT}",f"- Offline audio substitutes generated: {len(GENERATED)}",f"- Failed downloads: {len(FAILED)}",f"- Remaining absolute URL occurrences: {len(left)}","",
+report=["# Offline build report","",f"- HTML pages processed: {len(pages)}",f"- CSS files removed: {len(css_files)}",f"- Unique resources downloaded: {COUNT}",f"- Base64 audio resources: {sum(h.count('data:audio/') for _,h in done)}",f"- Offline audio substitutes generated: {len(GENERATED)}",f"- Failed downloads: {len(FAILED)}",f"- Remaining absolute URL occurrences: {len(left)}","",
 "Remaining URLs may be navigation links, dynamic JavaScript/API calls, blocked resources, or services that cannot be embedded. Audio substitutes are generated WAV tones/effects because the original MP3 endpoints returned 404. Review before claiming full offline support.","","## Generated audio substitutes"]+[f"- {u}" for u in sorted(GENERATED)]+["","## Failed downloads"]+[f"- {u}" for u in sorted(FAILED)]+["","## Remaining URLs"]+[f"- {x}" for x in left]
 Path("OFFLINE-BUILD-REPORT.md").write_text("\n".join(report)+"\n",encoding="utf-8")
 print(f"Processed {len(pages)} HTML files; downloaded {COUNT}; generated {len(GENERATED)} audio fallbacks; failed {len(FAILED)}.")

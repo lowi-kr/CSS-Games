@@ -23,11 +23,13 @@ jobs:
       - run: python -m pip install --upgrade requests
       - name: Download and embed external resources
         run: python scripts/embed_offline_assets.py
+      - name: Verify standalone HTML and embedded audio
+        run: python scripts/verify_offline_html.py
       - name: Commit generated HTML
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- '*.html' OFFLINE-BUILD-REPORT.md
+          git add -A -- '*.html' '*.css' OFFLINE-BUILD-REPORT.md
           if git diff --cached --quiet; then
             echo "No changes."
           else
