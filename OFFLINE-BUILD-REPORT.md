@@ -1,13 +1,14 @@
 # Offline build report
 
 - HTML pages processed: 17
-- Unique resources downloaded: 27
-- Failed downloads: 35
-- Remaining absolute URL occurrences: 77
+- Unique resources downloaded: 3
+- Offline audio substitutes generated: 35
+- Failed downloads: 0
+- Remaining absolute URL occurrences: 22
 
-Remaining URLs may be navigation links, dynamic JavaScript/API calls, blocked resources, or services that cannot be embedded. Review before claiming full offline support.
+Remaining URLs may be navigation links, dynamic JavaScript/API calls, blocked resources, or services that cannot be embedded. Audio substitutes are generated WAV tones/effects because the original MP3 endpoints returned 404. Review before claiming full offline support.
 
-## Failed downloads
+## Generated audio substitutes
 - https://studiokah.com/tests/click2.mp3
 - https://studiokah.com/tests/dice.mp3
 - https://studiokah.com/tests/keyboard-key.mp3
@@ -44,57 +45,9 @@ Remaining URLs may be navigation links, dynamic JavaScript/API calls, blocked re
 - https://studiokah.com/tests/piano/keyboard-32-8.mp3
 - https://studiokah.com/tests/piano/keyboard-32-9.mp3
 
+## Failed downloads
+
 ## Remaining URLs
-- apps/casio-keyboard/casio.html:1071: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1077: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1083: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1089: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1095: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1101: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1107: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1113: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1119: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1125: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1133: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1139: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1145: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1151: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1157: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1163: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1169: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1208: https://studiokah.com/tests/keyboard-key.mp3
-- apps/casio-keyboard/casio.html:1212: https://studiokah.com/tests/piano/keyboard-32-0.mp3
-- apps/casio-keyboard/casio.html:1215: https://studiokah.com/tests/piano/keyboard-32-2.mp3
-- apps/casio-keyboard/casio.html:1218: https://studiokah.com/tests/piano/keyboard-32-4.mp3
-- apps/casio-keyboard/casio.html:1221: https://studiokah.com/tests/piano/keyboard-32-6.mp3
-- apps/casio-keyboard/casio.html:1224: https://studiokah.com/tests/piano/keyboard-32-7.mp3
-- apps/casio-keyboard/casio.html:1227: https://studiokah.com/tests/piano/keyboard-32-9.mp3
-- apps/casio-keyboard/casio.html:1230: https://studiokah.com/tests/piano/keyboard-32-11.mp3
-- apps/casio-keyboard/casio.html:1233: https://studiokah.com/tests/piano/keyboard-32-12.mp3
-- apps/casio-keyboard/casio.html:1236: https://studiokah.com/tests/piano/keyboard-32-14.mp3
-- apps/casio-keyboard/casio.html:1239: https://studiokah.com/tests/piano/keyboard-32-16.mp3
-- apps/casio-keyboard/casio.html:1242: https://studiokah.com/tests/piano/keyboard-32-18.mp3
-- apps/casio-keyboard/casio.html:1245: https://studiokah.com/tests/piano/keyboard-32-19.mp3
-- apps/casio-keyboard/casio.html:1248: https://studiokah.com/tests/piano/keyboard-32-21.mp3
-- apps/casio-keyboard/casio.html:1251: https://studiokah.com/tests/piano/keyboard-32-23.mp3
-- apps/casio-keyboard/casio.html:1254: https://studiokah.com/tests/piano/keyboard-32-24.mp3
-- apps/casio-keyboard/casio.html:1257: https://studiokah.com/tests/piano/keyboard-32-26.mp3
-- apps/casio-keyboard/casio.html:1260: https://studiokah.com/tests/piano/keyboard-32-28.mp3
-- apps/casio-keyboard/casio.html:1263: https://studiokah.com/tests/piano/keyboard-32-30.mp3
-- apps/casio-keyboard/casio.html:1266: https://studiokah.com/tests/piano/keyboard-32-31.mp3
-- apps/casio-keyboard/casio.html:1269: https://studiokah.com/tests/piano/keyboard-32-1.mp3
-- apps/casio-keyboard/casio.html:1272: https://studiokah.com/tests/piano/keyboard-32-3.mp3
-- apps/casio-keyboard/casio.html:1275: https://studiokah.com/tests/piano/keyboard-32-5.mp3
-- apps/casio-keyboard/casio.html:1278: https://studiokah.com/tests/piano/keyboard-32-8.mp3
-- apps/casio-keyboard/casio.html:1281: https://studiokah.com/tests/piano/keyboard-32-10.mp3
-- apps/casio-keyboard/casio.html:1284: https://studiokah.com/tests/piano/keyboard-32-13.mp3
-- apps/casio-keyboard/casio.html:1287: https://studiokah.com/tests/piano/keyboard-32-15.mp3
-- apps/casio-keyboard/casio.html:1290: https://studiokah.com/tests/piano/keyboard-32-17.mp3
-- apps/casio-keyboard/casio.html:1293: https://studiokah.com/tests/piano/keyboard-32-20.mp3
-- apps/casio-keyboard/casio.html:1296: https://studiokah.com/tests/piano/keyboard-32-22.mp3
-- apps/casio-keyboard/casio.html:1299: https://studiokah.com/tests/piano/keyboard-32-25.mp3
-- apps/casio-keyboard/casio.html:1302: https://studiokah.com/tests/piano/keyboard-32-27.mp3
-- apps/casio-keyboard/casio.html:1305: https://studiokah.com/tests/piano/keyboard-32-29.mp3
 - games/connect-four/connect-four.html:8: https://www.gnu.org/licenses/gpl-3.0.txt
 - games/dino/dino.html:8: https://www.gnu.org/licenses/gpl-3.0.txt
 - games/driving/driving/driving.html:8: https://www.gnu.org/licenses/gpl-3.0.txt
@@ -103,18 +56,13 @@ Remaining URLs may be navigation links, dynamic JavaScript/API calls, blocked re
 - games/mastermind/mastermind.html:8: https://www.gnu.org/licenses/gpl-3.0.txt
 - games/mastermind/mastermind.html:7086: https://en.wikipedia.org/wiki/Mastermind_(board_game
 - games/plankman/plankman.html:8: https://www.gnu.org/licenses/gpl-3.0.txt
-- games/plankman/plankman.html:14: https://fonts.googleapis.com/css2?family=Nova+Mono&family=Pirata+One&display=swap
 - games/rock-paper-scissors/rock-paper-scissors.html:8: https://www.gnu.org/licenses/gpl-3.0.txt
 - games/simon/simon.html:8: https://www.gnu.org/licenses/gpl-3.0.txt
 - games/snakes-and-ladders/Multi-player/snakes-and-ladders-multiplayer.html:8: https://www.gnu.org/licenses/gpl-3.0.txt
 - games/snakes-and-ladders/Multi-player/snakes-and-ladders-multiplayer.html:5548: https://en.wikipedia.org/wiki/Snakes_and_Ladders
 - games/snakes-and-ladders/Multi-player/snakes-and-ladders-multiplayer.html:5549: https://github.com/alvaromontoro
-- games/snakes-and-ladders/Multi-player/snakes-and-ladders-multiplayer.html:5582: https://studiokah.com/tests/click2.mp3
-- games/snakes-and-ladders/Multi-player/snakes-and-ladders-multiplayer.html:5587: https://studiokah.com/tests/click2.mp3
 - games/snakes-and-ladders/Multi-player/snakes-and-ladders-multiplayer.html:5589: https://www.codewars.com/kata/snakes-and-ladders-1
-- games/snakes-and-ladders/Multi-player/snakes-and-ladders-multiplayer.html:5940: https://studiokah.com/tests/dice.mp3
 - games/snakes-and-ladders/Multi-player/snakes-and-ladders-multiplayer.html:5943: http://soundbible.com/1705-Click2.html--
-- games/snakes-and-ladders/Multi-player/snakes-and-ladders-multiplayer.html:5944: https://studiokah.com/tests/click2.mp3
 - games/snakes-and-ladders/Single-player/snakes-and-ladders.html:8: https://www.gnu.org/licenses/gpl-3.0.txt
 - games/snakes-and-ladders/Single-player/snakes-and-ladders.html:1104: https://en.wikipedia.org/wiki/Snakes_and_Ladders
 - games/tic-tac-toe/player-vs-computer-ai/tic-tac-toe-ai.html:8: https://www.gnu.org/licenses/gpl-3.0.txt
