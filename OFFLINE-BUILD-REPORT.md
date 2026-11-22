@@ -1,7 +1,9 @@
 # Offline build report
 
 - HTML pages processed: 17
+- CSS files removed: 17
 - Unique resources downloaded: 0
+- Base64 audio resources: 54
 - Offline audio substitutes generated: 0
 - Failed downloads: 0
 - Remaining absolute URL occurrences: 22
